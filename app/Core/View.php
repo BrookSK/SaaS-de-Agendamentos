@@ -16,6 +16,13 @@ final class View
         extract($data);
         ob_start();
         require $path;
-        return (string)ob_get_clean();
+        $html = (string)ob_get_clean();
+
+        if (stripos($html, '<head') !== false && stripos($html, 'rel="stylesheet"') === false) {
+            $link = "\n    <link rel=\"stylesheet\" href=\"/assets/app.css\">\n";
+            $html = preg_replace('/<head(\b[^>]*)>/i', '<head$1>' . $link, $html, 1) ?? $html;
+        }
+
+        return $html;
     }
 }

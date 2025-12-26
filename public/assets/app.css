@@ -1,0 +1,40 @@
+:root{--bg:#0b1220;--card:#111a2e;--text:#e6eaf2;--muted:#a9b3c7;--border:rgba(255,255,255,.12);--primary:#4f8cff;--danger:#ff5a6a;--success:#3ddc97;--shadow:0 10px 30px rgba(0,0,0,.35)}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#070b13 0%,#0b1220 100%);color:var(--text);padding:28px}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:980px;margin:0 auto}
+.card{background:rgba(17,26,46,.9);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:22px}
+.h1{font-size:32px;line-height:1.15;margin:0 0 6px}
+.h2{font-size:18px;margin:18px 0 8px;color:var(--muted)}
+.p{margin:8px 0;color:var(--muted)}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.field{margin-top:12px}
+label{display:block;font-size:14px;color:var(--muted);margin-bottom:6px}
+input,select,textarea{width:100%;max-width:520px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:rgba(79,140,255,.65);box-shadow:0 0 0 3px rgba(79,140,255,.15)}
+button{padding:10px 14px;border-radius:10px;border:1px solid rgba(79,140,255,.6);background:rgba(79,140,255,.18);color:var(--text);cursor:pointer}
+button:hover{background:rgba(79,140,255,.28)}
+.small{font-size:13px;color:var(--muted)}
+.notice{margin:12px 0;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06)}
+.notice.success{border-color:rgba(61,220,151,.45)}
+.notice.error{border-color:rgba(255,90,106,.5)}
+.table{width:100%;border-collapse:collapse;margin-top:10px}
+.table th,.table td{border-bottom:1px solid var(--border);padding:10px 8px;text-align:left;vertical-align:top}
+.table th{color:var(--muted);font-weight:600}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.footer-links{margin-top:16px;display:flex;gap:14px;flex-wrap:wrap}
+
+/* Base styling for legacy pages (without container/card classes) */
+body > h1:first-of-type,
+body > h2:first-of-type{max-width:980px;margin-left:auto;margin-right:auto}
+h1{font-size:34px;letter-spacing:-.02em;margin:0 0 10px}
+h2{font-size:18px;color:var(--muted);margin:22px 0 10px}
+p{color:var(--muted);margin:10px 0}
+ul{margin:10px 0 0 18px;color:var(--muted)}
+li{margin:6px 0}
+table{width:100%;max-width:980px;margin:12px auto 0;border-collapse:collapse}
+th,td{border-bottom:1px solid var(--border);padding:10px 8px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+form{max-width:980px;margin-left:auto;margin-right:auto}
