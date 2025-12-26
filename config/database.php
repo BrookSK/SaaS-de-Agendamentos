@@ -2,26 +2,25 @@
 
 declare(strict_types=1);
 
-$env = getenv('APP_ENV') ?: 'local';
-$profile = $env === 'production' ? 'production' : 'test';
-
 return [
-    'environment' => $profile,
+    // Defina manualmente qual conexão o sistema deve usar:
+    // 'test' ou 'production'
+    'environment' => 'test',
     'charset' => 'utf8mb4',
     'connections' => [
         'test' => [
-            'host' => '127.0.0.1',
+            'host' => 'localhost',
             'port' => 3306,
-            'name' => 'saas_agendamentos',
-            'user' => 'root',
-            'pass' => '',
+            'name' => 'saas_agendamentos_teste',
+            'user' => 'saas_agendamentos_teste',
+            'pass' => '^5N2jro6XdN~dtar',
         ],
         'production' => [
-            'host' => '127.0.0.1',
+            'host' => 'localhost',
             'port' => 3306,
             'name' => 'saas_agendamentos',
-            'user' => 'root',
-            'pass' => '',
+            'user' => 'saas_agendamentos',
+            'pass' => '^5N2jro6XdN~dtar',
         ],
     ],
 ];

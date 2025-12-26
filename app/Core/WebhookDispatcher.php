@@ -13,7 +13,8 @@ final class WebhookDispatcher
      */
     public static function dispatch(string $eventName, array $payload): void
     {
-        $env = getenv('APP_ENV') ?: 'local';
+        $appCfg = require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.php';
+        $env = (string)($appCfg['env'] ?? 'local');
         $environment = ($env === 'production') ? 'production' : 'test';
 
         $pdo = Db::pdo();

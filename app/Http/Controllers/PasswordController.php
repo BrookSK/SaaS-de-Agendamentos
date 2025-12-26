@@ -9,6 +9,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\SmtpMailer;
 use App\Core\Tenant;
+use App\Core\Url;
 use App\Models\PasswordReset;
 use App\Models\SystemSetting;
 use App\Models\User;
@@ -51,8 +52,10 @@ final class PasswordController extends Controller
         PasswordReset::create($user->id, $user->tenantId, $tokenHash, $expiresAt);
 
         $prefix = $tenant?->urlPrefix() ?? '';
-        $appUrl = getenv('APP_URL') ?: 'http://localhost';
-        $resetUrl = rtrim($appUrl, '/') . $prefix . '/reset-password?token=' . rawurlencode($token);
+        $appCfg = require dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.php';
+        $fallbackUrl = (string)($appCfg['url'] ?? 'http://localhost');
+        $baseUrl = Url::base($fallbackUrl);
+        $resetUrl = rtrim($baseUrl, '/') . $prefix . '/reset-password?token=' . rawurlencode($token);
 
         $smtpHost = (string)SystemSetting::get('smtp.host', '');
         $smtpPort = (int)(SystemSetting::get('smtp.port', '0') ?? '0');
