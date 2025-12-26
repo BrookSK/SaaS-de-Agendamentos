@@ -36,7 +36,7 @@ final class Routes
 {
     public static function register(Router $router): void
     {
-        $router->get('/', [HomeController::class, 'index']);
+        $router->get('/', static fn () => Response::redirect('/login'));
 
         $router->get('/login', [AuthController::class, 'showLogin']);
         $router->post('/login', [AuthController::class, 'login']);
