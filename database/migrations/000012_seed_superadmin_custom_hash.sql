@@ -1,4 +1,4 @@
-USE saas_agendamentos;
+
 
 -- Super Admin padrão
 -- Login: admin@admin.com

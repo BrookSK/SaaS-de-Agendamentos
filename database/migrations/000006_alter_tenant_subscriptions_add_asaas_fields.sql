@@ -1,4 +1,4 @@
-USE saas_agendamentos;
+
 
 ALTER TABLE tenant_subscriptions
   ADD COLUMN asaas_customer_id VARCHAR(100) NULL,

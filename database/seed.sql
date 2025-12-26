@@ -1,4 +1,4 @@
-USE saas_agendamentos;
+
 
 -- SUPER ADMIN (tenant_id = NULL)
 -- senha: admin123 (troque depois)

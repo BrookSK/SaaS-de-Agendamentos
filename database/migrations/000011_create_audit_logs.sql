@@ -1,4 +1,4 @@
-USE saas_agendamentos;
+
 
 CREATE TABLE IF NOT EXISTS audit_logs (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

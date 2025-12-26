@@ -1,4 +1,4 @@
-USE saas_agendamentos;
+
 
 CREATE TABLE IF NOT EXISTS tenant_business_hours (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

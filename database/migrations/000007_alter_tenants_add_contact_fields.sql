@@ -1,4 +1,4 @@
-USE saas_agendamentos;
+
 
 ALTER TABLE tenants
   ADD COLUMN email VARCHAR(190) NULL,
