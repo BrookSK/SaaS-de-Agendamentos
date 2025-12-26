@@ -1,0 +1,9 @@
+USE saas_agendamentos;
+
+CREATE TABLE IF NOT EXISTS system_settings (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `key` VARCHAR(100) NOT NULL,
+  `value` TEXT NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_system_settings_key (`key`)
+) ENGINE=InnoDB;
