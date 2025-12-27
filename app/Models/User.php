@@ -70,4 +70,20 @@ final class User
         $stmt = $pdo->prepare('UPDATE users SET password_hash = :password_hash, updated_at = NOW() WHERE id = :id');
         $stmt->execute(['password_hash' => $passwordHash, 'id' => $id]);
     }
+
+    public static function createTenantAdmin(int $tenantId, string $name, string $email, string $passwordHash, string $status = 'active'): int
+    {
+        $pdo = Db::pdo();
+        $stmt = $pdo->prepare('INSERT INTO users (tenant_id, name, email, password_hash, role, status) VALUES (:tenant_id, :name, :email, :password_hash, :role, :status)');
+        $stmt->execute([
+            'tenant_id' => $tenantId,
+            'name' => $name,
+            'email' => $email,
+            'password_hash' => $passwordHash,
+            'role' => 'tenant_admin',
+            'status' => $status,
+        ]);
+
+        return (int)$pdo->lastInsertId();
+    }
 }

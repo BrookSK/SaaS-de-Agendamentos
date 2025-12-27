@@ -42,6 +42,17 @@
             <label>CPF/CNPJ (ASAAS customer)</label><br>
             <input type="text" name="cpf_cnpj">
         </div>
+        <div style="margin-top: 18px;">
+            <strong>Administrador da empresa</strong>
+        </div>
+        <div style="margin-top: 8px;">
+            <label>E-mail do admin (login do dono)</label><br>
+            <input type="email" name="admin_email" required>
+        </div>
+        <div style="margin-top: 8px;">
+            <label>Senha do admin</label><br>
+            <input type="password" name="admin_password" required>
+        </div>
         <div style="margin-top: 12px;">
             <button type="submit">Salvar</button>
         </div>

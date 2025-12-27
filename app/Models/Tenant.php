@@ -105,6 +105,28 @@ final class Tenant
         ]);
     }
 
+    public static function createReturningId(
+        string $name,
+        string $slug,
+        string $status = 'active',
+        ?string $email = null,
+        ?string $phone = null,
+        ?string $cpfCnpj = null
+    ): int
+    {
+        $pdo = Db::pdo();
+        $stmt = $pdo->prepare('INSERT INTO tenants (name, slug, status, email, phone, cpf_cnpj) VALUES (:name, :slug, :status, :email, :phone, :cpf_cnpj)');
+        $stmt->execute([
+            'name' => $name,
+            'slug' => $slug,
+            'status' => $status,
+            'email' => $email,
+            'phone' => $phone,
+            'cpf_cnpj' => $cpfCnpj,
+        ]);
+        return (int)$pdo->lastInsertId();
+    }
+
     public static function updateById(
         int $id,
         string $name,

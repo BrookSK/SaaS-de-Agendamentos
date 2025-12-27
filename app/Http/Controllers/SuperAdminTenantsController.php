@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Core\Auth;
+use App\Core\Db;
 use App\Core\Request;
 use App\Core\Response;
 use App\Models\Tenant;
+use App\Models\User;
 
 final class SuperAdminTenantsController extends Controller
 {
@@ -37,7 +39,18 @@ final class SuperAdminTenantsController extends Controller
         $phone = trim((string)$request->input('phone', ''));
         $cpfCnpj = trim((string)$request->input('cpf_cnpj', ''));
 
+        $adminEmail = trim((string)$request->input('admin_email', ''));
+        $adminPassword = (string)$request->input('admin_password', '');
+
         if ($name === '' || $slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
+            return Response::redirect('/super/tenants');
+        }
+
+        if ($adminEmail === '' || !filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+            return Response::redirect('/super/tenants');
+        }
+
+        if (mb_strlen($adminPassword) < 6) {
             return Response::redirect('/super/tenants');
         }
 
@@ -45,14 +58,36 @@ final class SuperAdminTenantsController extends Controller
             $status = 'active';
         }
 
-        Tenant::create(
-            $name,
-            $slug,
-            $status,
-            $email !== '' ? $email : null,
-            $phone !== '' ? $phone : null,
-            $cpfCnpj !== '' ? $cpfCnpj : null
-        );
+        $pdo = Db::pdo();
+
+        try {
+            $pdo->beginTransaction();
+
+            $tenantId = Tenant::createReturningId(
+                $name,
+                $slug,
+                $status,
+                $email !== '' ? $email : null,
+                $phone !== '' ? $phone : null,
+                $cpfCnpj !== '' ? $cpfCnpj : null
+            );
+
+            if (User::findByEmail($adminEmail, $tenantId) !== null) {
+                $pdo->rollBack();
+                return Response::redirect('/super/tenants');
+            }
+
+            $adminName = 'Admin ' . $name;
+            $hash = password_hash($adminPassword, PASSWORD_BCRYPT);
+            User::createTenantAdmin($tenantId, $adminName, $adminEmail, $hash, 'active');
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return Response::redirect('/super/tenants');
+        }
 
         return Response::redirect('/super/tenants');
     }
