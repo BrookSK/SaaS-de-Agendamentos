@@ -60,24 +60,24 @@ final class View
 
             $navLinks = '';
             if ($role === 'super_admin') {
-                $navLinks .= '<a class="nav-item" href="/super/dashboard">Dashboard</a>\n';
-                $navLinks .= '<a class="nav-item" href="/super/tenants">Empresas</a>\n';
-                $navLinks .= '<a class="nav-item" href="/super/plans">Planos</a>\n';
-                $navLinks .= '<a class="nav-item" href="/super/subscriptions">Assinaturas</a>\n';
-                $navLinks .= '<a class="nav-item" href="/super/webhooks">Webhooks</a>\n';
-                $navLinks .= '<a class="nav-item" href="/super/audit">Auditoria</a>\n';
-                $navLinks .= '<a class="nav-item" href="/super/settings">Configurações</a>\n';
-                $navLinks .= '<a class="nav-item" href="/super/asaas">Asaas</a>\n';
+                $navLinks .= '<a class="nav-item" href="/super/dashboard">Dashboard</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="/super/tenants">Empresas</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="/super/plans">Planos</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="/super/subscriptions">Assinaturas</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="/super/webhooks">Webhooks</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="/super/audit">Auditoria</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="/super/settings">Configurações</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="/super/asaas">Asaas</a>' . PHP_EOL;
             } else {
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/dashboard') . '">Dashboard</a>\n';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/agenda') . '">Agenda</a>\n';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/services') . '">Serviços</a>\n';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/employees') . '">Profissionais</a>\n';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/clients') . '">Clientes</a>\n';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/finance') . '">Financeiro</a>\n';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/reports') . '">Relatórios</a>\n';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/settings/notifications') . '">Notificações</a>\n';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/audit') . '">Auditoria</a>\n';
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/dashboard') . '">Dashboard</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/agenda') . '">Agenda</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/services') . '">Serviços</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/employees') . '">Profissionais</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/clients') . '">Clientes</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/finance') . '">Financeiro</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/reports') . '">Relatórios</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/settings/notifications') . '">Notificações</a>' . PHP_EOL;
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/audit') . '">Auditoria</a>' . PHP_EOL;
             }
 
             $logoutAction = $role === 'super_admin' ? '/logout' : ($prefix . '/logout');
