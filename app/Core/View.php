@@ -18,9 +18,38 @@ final class View
         require $path;
         $html = (string)ob_get_clean();
 
-        if (stripos($html, '<head') !== false && stripos($html, 'rel="stylesheet"') === false) {
-            $link = "\n    <link rel=\"stylesheet\" href=\"/assets/app.css\">\n";
+        if (stripos($html, '<head') !== false && stripos($html, '/assets/app.css') === false) {
+            $projectRoot = dirname(__DIR__, 2);
+            $publicCss = $projectRoot . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'app.css';
+            $rootCss = $projectRoot . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'app.css';
+
+            $v = null;
+            if (is_file($publicCss)) {
+                $v = @filemtime($publicCss) ?: null;
+            } elseif (is_file($rootCss)) {
+                $v = @filemtime($rootCss) ?: null;
+            }
+
+            $href = '/assets/app.css' . ($v ? ('?v=' . $v) : '');
+            $link = "\n    <link rel=\"stylesheet\" href=\"" . htmlspecialchars($href) . "\">\n";
             $html = preg_replace('/<head(\b[^>]*)>/i', '<head$1>' . $link, $html, 1) ?? $html;
+        }
+
+        if ((str_starts_with($view, 'auth/') || str_starts_with($view, 'public/') || str_starts_with($view, 'home/')) && stripos($html, '<body') !== false) {
+            $shellStart = '<body class="guest">'
+                . '<header class="guest-header">'
+                . '<div class="guest-brand">Agenda SaaS</div>'
+                . '</header>'
+                . '<main class="guest-main">'
+                . '<div class="guest-card">';
+
+            $shellEnd = '</div>'
+                . '</main>'
+                . '<footer class="guest-footer">© ' . date('Y') . ' Agenda SaaS</footer>'
+                . '</body>';
+
+            $html = preg_replace('/<body(\b[^>]*)>/i', $shellStart, $html, 1) ?? $html;
+            $html = preg_replace('/<\/body>/i', $shellEnd, $html, 1) ?? $html;
         }
 
         if ((str_starts_with($view, 'super/') || str_starts_with($view, 'tenant/')) && stripos($html, '<body') !== false) {
@@ -31,24 +60,24 @@ final class View
 
             $navLinks = '';
             if ($role === 'super_admin') {
-                $navLinks .= '<a class="nav-item" href="/super/dashboard">Dashboard</a>';
-                $navLinks .= '<a class="nav-item" href="/super/tenants">Empresas</a>';
-                $navLinks .= '<a class="nav-item" href="/super/plans">Planos</a>';
-                $navLinks .= '<a class="nav-item" href="/super/subscriptions">Assinaturas</a>';
-                $navLinks .= '<a class="nav-item" href="/super/webhooks">Webhooks</a>';
-                $navLinks .= '<a class="nav-item" href="/super/audit">Auditoria</a>';
-                $navLinks .= '<a class="nav-item" href="/super/settings">Configurações</a>';
-                $navLinks .= '<a class="nav-item" href="/super/asaas">Asaas</a>';
+                $navLinks .= '<a class="nav-item" href="/super/dashboard">Dashboard</a>\n';
+                $navLinks .= '<a class="nav-item" href="/super/tenants">Empresas</a>\n';
+                $navLinks .= '<a class="nav-item" href="/super/plans">Planos</a>\n';
+                $navLinks .= '<a class="nav-item" href="/super/subscriptions">Assinaturas</a>\n';
+                $navLinks .= '<a class="nav-item" href="/super/webhooks">Webhooks</a>\n';
+                $navLinks .= '<a class="nav-item" href="/super/audit">Auditoria</a>\n';
+                $navLinks .= '<a class="nav-item" href="/super/settings">Configurações</a>\n';
+                $navLinks .= '<a class="nav-item" href="/super/asaas">Asaas</a>\n';
             } else {
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/dashboard') . '">Dashboard</a>';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/agenda') . '">Agenda</a>';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/services') . '">Serviços</a>';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/employees') . '">Profissionais</a>';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/clients') . '">Clientes</a>';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/finance') . '">Financeiro</a>';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/reports') . '">Relatórios</a>';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/settings/notifications') . '">Notificações</a>';
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/audit') . '">Auditoria</a>';
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/dashboard') . '">Dashboard</a>\n';
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/agenda') . '">Agenda</a>\n';
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/services') . '">Serviços</a>\n';
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/employees') . '">Profissionais</a>\n';
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/clients') . '">Clientes</a>\n';
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/finance') . '">Financeiro</a>\n';
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/reports') . '">Relatórios</a>\n';
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/settings/notifications') . '">Notificações</a>\n';
+                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/audit') . '">Auditoria</a>\n';
             }
 
             $logoutAction = $role === 'super_admin' ? '/logout' : ($prefix . '/logout');

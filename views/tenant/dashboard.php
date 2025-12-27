@@ -12,38 +12,49 @@ $logoutAction = $tenant->urlPrefix() . '/logout';
     <title>Empresa - Dashboard</title>
 </head>
 <body>
-    <h1>Dashboard - Empresa</h1>
+    <div class="page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Painel</h1>
+                <p class="page-subtitle">Empresa: <strong><?php echo htmlspecialchars($tenant->slug); ?></strong></p>
+            </div>
+            <div class="page-meta">
+                <span class="badge">tenant_id: <?php echo htmlspecialchars((string)($tenant->tenantId ?? 'null')); ?></span>
+            </div>
+        </div>
 
-    <p>
-        Tenant: <strong><?php echo htmlspecialchars($tenant->slug); ?></strong>
-        (tenant_id: <strong><?php echo htmlspecialchars((string)($tenant->tenantId ?? 'null')); ?></strong>)
-    </p>
+        <div class="grid">
+            <div class="stat-card">
+                <div class="stat-title">Agendamentos (hoje)</div>
+                <div class="stat-value">—</div>
+                <div class="stat-actions"><a class="link" href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/agenda'); ?>">Abrir agenda</a></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Serviços</div>
+                <div class="stat-value">—</div>
+                <div class="stat-actions"><a class="link" href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/services'); ?>">Gerenciar</a></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Profissionais</div>
+                <div class="stat-value">—</div>
+                <div class="stat-actions"><a class="link" href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/employees'); ?>">Gerenciar</a></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Clientes</div>
+                <div class="stat-value">—</div>
+                <div class="stat-actions"><a class="link" href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/clients'); ?>">Gerenciar</a></div>
+            </div>
+        </div>
 
-    <p>Logado como: <strong><?php echo htmlspecialchars($user['email'] ?? ''); ?></strong></p>
-
-    <form method="post" action="<?php echo htmlspecialchars($logoutAction); ?>">
-        <button type="submit">Sair</button>
-    </form>
-
-    <h2>Próximos módulos do tenant</h2>
-    <ul>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/services'); ?>">Serviços</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/employees'); ?>">Funcionários</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/clients'); ?>">Clientes</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/agenda'); ?>">Agenda (dia)</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/book'); ?>">Página pública de agendamento</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/settings/business-hours'); ?>">Configurar horário de funcionamento</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/settings/employee-hours'); ?>">Configurar disponibilidade dos profissionais</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/settings/holidays'); ?>">Configurar feriados</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/settings/time-blocks'); ?>">Bloqueios de agenda</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/settings/notifications'); ?>">Notificações (destinatários/templates)</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/finance'); ?>">Financeiro</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/reports'); ?>">Relatórios</a></li>
-        <li><a href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/audit'); ?>">Auditoria (logs)</a></li>
-    </ul>
-
-    <p style="margin-top: 16px;">
-        <a href="/">Voltar</a>
-    </p>
+        <div class="card section">
+            <div class="section-title">Ações rápidas</div>
+            <div class="quick-actions">
+                <a class="qa" href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/book'); ?>">Página pública de agendamento</a>
+                <a class="qa" href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/finance'); ?>">Financeiro</a>
+                <a class="qa" href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/reports'); ?>">Relatórios</a>
+                <a class="qa" href="<?php echo htmlspecialchars($tenant->urlPrefix() . '/settings/business-hours'); ?>">Horário de funcionamento</a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

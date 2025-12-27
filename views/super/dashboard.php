@@ -7,23 +7,46 @@
     <title>Super Admin - Dashboard</title>
 </head>
 <body>
-    <h1>Dashboard - Super Admin</h1>
+    <div class="page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Painel</h1>
+                <p class="page-subtitle">Super Admin</p>
+            </div>
+        </div>
 
-    <p>Logado como: <strong><?php echo htmlspecialchars($user['email'] ?? ''); ?></strong></p>
+        <div class="grid">
+            <div class="stat-card">
+                <div class="stat-title">Empresas</div>
+                <div class="stat-value">—</div>
+                <div class="stat-actions"><a class="link" href="/super/tenants">Gerenciar</a></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Planos</div>
+                <div class="stat-value">—</div>
+                <div class="stat-actions"><a class="link" href="/super/plans">Ver</a></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Assinaturas</div>
+                <div class="stat-value">—</div>
+                <div class="stat-actions"><a class="link" href="/super/subscriptions">Acompanhar</a></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Webhooks</div>
+                <div class="stat-value">—</div>
+                <div class="stat-actions"><a class="link" href="/super/webhooks">Configurar</a></div>
+            </div>
+        </div>
 
-    <form method="post" action="/logout">
-        <button type="submit">Sair</button>
-    </form>
-
-    <h2>Próximos módulos</h2>
-    <ul>
-        <li><a href="/super/tenants">Empresas (Tenants)</a></li>
-        <li><a href="/super/plans">Planos</a></li>
-        <li><a href="/super/subscriptions">Assinaturas</a></li>
-        <li><a href="/super/settings">Configurações (SMTP / White Label)</a></li>
-        <li><a href="/super/audit">Auditoria (logs)</a></li>
-        <li><a href="/super/asaas">Integração Asaas</a></li>
-        <li><a href="/super/webhooks">Webhooks (Global)</a></li>
-    </ul>
+        <div class="card section">
+            <div class="section-title">Ações rápidas</div>
+            <div class="quick-actions">
+                <a class="qa" href="/super/tenants">Cadastrar/editar empresas</a>
+                <a class="qa" href="/super/settings">Configurações do sistema</a>
+                <a class="qa" href="/super/audit">Auditoria</a>
+                <a class="qa" href="/super/asaas">Integração Asaas</a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
