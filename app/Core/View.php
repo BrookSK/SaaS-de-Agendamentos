@@ -58,26 +58,34 @@ final class View
             $userEmail = (string)($u['email'] ?? '');
             $prefix = Tenant::current()?->urlPrefix() ?? '';
 
+            $uriPath = (string)(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/');
+            $makeNavLink = static function (string $href, string $label) use ($uriPath): string {
+                $hrefPath = (string)(parse_url($href, PHP_URL_PATH) ?? $href);
+                $isActive = $hrefPath === '/' ? $uriPath === '/' : ($uriPath === $hrefPath || str_starts_with($uriPath, rtrim($hrefPath, '/') . '/'));
+                $cls = 'nav-item' . ($isActive ? ' active' : '');
+                return '<a class="' . $cls . '" href="' . htmlspecialchars($href) . '">' . htmlspecialchars($label) . '</a>';
+            };
+
             $navLinks = '';
             if ($role === 'super_admin') {
-                $navLinks .= '<a class="nav-item" href="/super/dashboard">Dashboard</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="/super/tenants">Empresas</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="/super/plans">Planos</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="/super/subscriptions">Assinaturas</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="/super/webhooks">Webhooks</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="/super/audit">Auditoria</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="/super/settings">Configurações</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="/super/asaas">Asaas</a>' . PHP_EOL;
+                $navLinks .= $makeNavLink('/super/dashboard', 'Dashboard') . PHP_EOL;
+                $navLinks .= $makeNavLink('/super/tenants', 'Empresas') . PHP_EOL;
+                $navLinks .= $makeNavLink('/super/plans', 'Planos') . PHP_EOL;
+                $navLinks .= $makeNavLink('/super/subscriptions', 'Assinaturas') . PHP_EOL;
+                $navLinks .= $makeNavLink('/super/webhooks', 'Webhooks') . PHP_EOL;
+                $navLinks .= $makeNavLink('/super/audit', 'Auditoria') . PHP_EOL;
+                $navLinks .= $makeNavLink('/super/settings', 'Configurações') . PHP_EOL;
+                $navLinks .= $makeNavLink('/super/asaas', 'Asaas') . PHP_EOL;
             } else {
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/dashboard') . '">Dashboard</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/agenda') . '">Agenda</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/services') . '">Serviços</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/employees') . '">Profissionais</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/clients') . '">Clientes</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/finance') . '">Financeiro</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/reports') . '">Relatórios</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/settings/notifications') . '">Notificações</a>' . PHP_EOL;
-                $navLinks .= '<a class="nav-item" href="' . htmlspecialchars($prefix . '/audit') . '">Auditoria</a>' . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/dashboard', 'Dashboard') . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/agenda', 'Agenda') . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/services', 'Serviços') . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/employees', 'Profissionais') . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/clients', 'Clientes') . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/finance', 'Financeiro') . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/reports', 'Relatórios') . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/settings/notifications', 'Notificações') . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/audit', 'Auditoria') . PHP_EOL;
             }
 
             $logoutAction = $role === 'super_admin' ? '/logout' : ($prefix . '/logout');

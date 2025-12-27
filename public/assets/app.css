@@ -45,14 +45,31 @@ input,select,textarea{background:var(--card)}
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:12px;color:var(--text)}
 .nav-item:hover{background:rgba(37,99,235,.07);text-decoration:none}
 .nav-item:focus{outline:3px solid rgba(37,99,235,.18);outline-offset:2px}
+.nav-item.active{background:rgba(37,99,235,.10);border:1px solid rgba(37,99,235,.18)}
 .app-main{padding:20px}
 .app-main > *{max-width:1200px}
 .app-footer{padding:14px 18px;color:var(--muted);font-size:13px;border-top:1px solid var(--border);background:var(--card)}
 
 /* Make legacy pages look ok inside app-main */
-.app-main h1{font-size:26px;margin:0 0 12px}
-.app-main h2{margin:18px 0 10px}
+.app-main h1{font-size:24px;margin:0 0 12px;letter-spacing:-.02em}
+.app-main h2{margin:18px 0 10px;letter-spacing:-.01em}
 .app-main ul{margin-left:18px}
+
+/* Global form/table beautification inside app */
+.app-main form{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin:0 0 16px}
+.app-main form > div{margin-top:12px}
+.app-main label{font-weight:600;color:var(--muted)}
+.app-main input,.app-main select,.app-main textarea{max-width:100%;width:100%}
+.app-main button{background:rgba(37,99,235,.10)}
+
+.app-main table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);margin:0 0 18px}
+.app-main thead th{background:rgba(15,23,42,.02);color:var(--muted);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.app-main th,.app-main td{padding:12px 12px;border-bottom:1px solid var(--border)}
+.app-main tbody tr:hover td{background:rgba(37,99,235,.03)}
+.app-main tbody tr:last-child td{border-bottom:none}
+
+.app-main a{font-weight:600}
+.app-main .actions a{font-weight:600}
 
 /* Page / dashboard components */
 .page{max-width:1200px}
@@ -84,6 +101,8 @@ input,select,textarea{background:var(--card)}
 .guest-card h2{font-size:16px;margin:18px 0 8px}
 .guest-card p{margin:10px 0;color:var(--muted)}
 .guest-card form{max-width:none;margin:0}
+.guest-card input,.guest-card select,.guest-card textarea{max-width:100%;width:100%}
+.guest-card button{width:100%}
 
 @media (max-width: 760px){
   .guest-main{padding:14px}
