@@ -58,6 +58,7 @@
                 <th>E-mail</th>
                 <th>Telefone</th>
                 <th>CPF/CNPJ</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -70,6 +71,9 @@
                     <td><?php echo htmlspecialchars($t->email ?? ''); ?></td>
                     <td><?php echo htmlspecialchars($t->phone ?? ''); ?></td>
                     <td><?php echo htmlspecialchars($t->cpfCnpj ?? ''); ?></td>
+                    <td>
+                        <a href="/super/tenants/<?php echo (int)$t->id; ?>/edit">Editar</a>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

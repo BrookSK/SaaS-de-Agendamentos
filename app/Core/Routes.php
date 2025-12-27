@@ -59,6 +59,8 @@ final class Routes
 
         $router->get('/super/tenants', [SuperAdminTenantsController::class, 'index']);
         $router->post('/super/tenants', [SuperAdminTenantsController::class, 'store']);
+        $router->get('/super/tenants/{id}/edit', [SuperAdminTenantsController::class, 'edit']);
+        $router->post('/super/tenants/{id}', [SuperAdminTenantsController::class, 'update']);
 
         $router->get('/super/plans', [SuperAdminPlansController::class, 'index']);
         $router->post('/super/plans', [SuperAdminPlansController::class, 'store']);

@@ -104,4 +104,27 @@ final class Tenant
             'cpf_cnpj' => $cpfCnpj,
         ]);
     }
+
+    public static function updateById(
+        int $id,
+        string $name,
+        string $slug,
+        string $status = 'active',
+        ?string $email = null,
+        ?string $phone = null,
+        ?string $cpfCnpj = null
+    ): void
+    {
+        $pdo = Db::pdo();
+        $stmt = $pdo->prepare('UPDATE tenants SET name = :name, slug = :slug, status = :status, email = :email, phone = :phone, cpf_cnpj = :cpf_cnpj WHERE id = :id');
+        $stmt->execute([
+            'id' => $id,
+            'name' => $name,
+            'slug' => $slug,
+            'status' => $status,
+            'email' => $email,
+            'phone' => $phone,
+            'cpf_cnpj' => $cpfCnpj,
+        ]);
+    }
 }
