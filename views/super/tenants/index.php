@@ -17,11 +17,11 @@
     <form method="post" action="/super/tenants">
         <div>
             <label>Nome</label><br>
-            <input type="text" name="name" required>
+            <input type="text" name="name" required id="tenant_name">
         </div>
         <div style="margin-top: 8px;">
             <label>Slug (ex: minha-empresa)</label><br>
-            <input type="text" name="slug" pattern="[a-z0-9-]+" required>
+            <input type="text" name="slug" pattern="[a-z0-9-]+" id="tenant_slug" placeholder="gerado automaticamente">
         </div>
         <div style="margin-top: 8px;">
             <label>Status</label><br>
@@ -57,6 +57,33 @@
             <button type="submit">Salvar</button>
         </div>
     </form>
+
+    <script>
+        (function () {
+            var nameInput = document.getElementById('tenant_name');
+            var slugInput = document.getElementById('tenant_slug');
+            if (!nameInput || !slugInput) return;
+
+            function slugify(s) {
+                return String(s || '')
+                    .toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/-+/g, '-')
+                    .replace(/^-|-$/g, '');
+            }
+
+            nameInput.addEventListener('input', function () {
+                if (slugInput.value && slugInput.dataset.touched === '1') return;
+                slugInput.value = slugify(nameInput.value);
+            });
+
+            slugInput.addEventListener('input', function () {
+                slugInput.dataset.touched = '1';
+                slugInput.value = slugify(slugInput.value);
+            });
+        })();
+    </script>
 
     <h2>Lista</h2>
     <table border="1" cellpadding="6" cellspacing="0">

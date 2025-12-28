@@ -42,6 +42,13 @@ final class SuperAdminTenantsController extends Controller
         $adminEmail = trim((string)$request->input('admin_email', ''));
         $adminPassword = (string)$request->input('admin_password', '');
 
+        if ($slug === '' && $name !== '') {
+            $slug = mb_strtolower($name);
+            $slug = preg_replace('/[^a-z0-9]+/u', '-', $slug) ?? $slug;
+            $slug = trim($slug, '-');
+            $slug = preg_replace('/-+/', '-', $slug) ?? $slug;
+        }
+
         if ($name === '' || $slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
             return Response::redirect('/super/tenants');
         }
