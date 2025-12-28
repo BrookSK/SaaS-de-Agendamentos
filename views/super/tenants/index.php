@@ -1,5 +1,10 @@
 <?php
 /** @var array<int, \App\Models\Tenant> $tenants */
+
+$created = (string)($_GET['created'] ?? '');
+$loginUrl = (string)($_GET['login_url'] ?? '');
+$adminEmail = (string)($_GET['admin_email'] ?? '');
+$emailStatus = (string)($_GET['email_status'] ?? '');
 ?>
 <!doctype html>
 <html lang="pt-br">
@@ -10,6 +15,68 @@
 </head>
 <body>
     <h1>Empresas (Tenants)</h1>
+
+    <?php if ($created === '1' && $loginUrl !== ''): ?>
+        <div class="notice success" id="tenant-created-notice">
+            <div><strong>Empresa criada com sucesso.</strong></div>
+            <div style="margin-top: 6px;">Link de login: <a href="<?php echo htmlspecialchars($loginUrl); ?>"><?php echo htmlspecialchars($loginUrl); ?></a></div>
+            <?php if ($adminEmail !== ''): ?>
+                <div style="margin-top: 6px;">E-mail do dono: <strong><?php echo htmlspecialchars($adminEmail); ?></strong></div>
+            <?php endif; ?>
+            <?php if ($emailStatus !== ''): ?>
+                <div style="margin-top: 6px;">
+                    Status do e-mail: <strong><?php echo htmlspecialchars($emailStatus); ?></strong>
+                </div>
+            <?php endif; ?>
+            <div style="margin-top: 10px;" class="actions">
+                <button type="button" class="btn" id="copy-login-url-btn">Copiar link</button>
+            </div>
+            <div style="margin-top: 8px;" class="small" id="copy-login-url-status"></div>
+        </div>
+        <script>
+            (function () {
+                var loginUrl = <?php echo json_encode($loginUrl, JSON_UNESCAPED_SLASHES); ?>;
+                var btn = document.getElementById('copy-login-url-btn');
+                var status = document.getElementById('copy-login-url-status');
+
+                function setStatus(text) {
+                    if (status) status.textContent = text;
+                }
+
+                async function copy() {
+                    try {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(loginUrl);
+                            setStatus('Link copiado para a área de transferência.');
+                            return;
+                        }
+                    } catch (e) {}
+
+                    try {
+                        var ta = document.createElement('textarea');
+                        ta.value = loginUrl;
+                        ta.setAttribute('readonly', 'readonly');
+                        ta.style.position = 'fixed';
+                        ta.style.left = '-9999px';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(ta);
+                        setStatus('Link copiado para a área de transferência.');
+                    } catch (e2) {
+                        setStatus('Não foi possível copiar automaticamente. Copie manualmente pelo link acima.');
+                    }
+                }
+
+                if (btn) {
+                    btn.addEventListener('click', function () { copy(); });
+                }
+
+                // tenta copiar automaticamente (alguns navegadores podem bloquear sem interação)
+                copy();
+            })();
+        </script>
+    <?php endif; ?>
 
     <p><a href="/super/dashboard">Voltar</a></p>
 

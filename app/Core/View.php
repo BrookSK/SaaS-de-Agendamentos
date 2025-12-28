@@ -116,6 +116,10 @@ final class View
             $html = preg_replace('/<\/body>/i', $shellEnd, $html, 1) ?? $html;
         }
 
+        $html = preg_replace('/<p>\s*<a\b[^>]*>\s*Voltar(?:\s+ao\s+login)?\s*<\/a>\s*<\/p>\s*/i', '', $html) ?? $html;
+        $html = preg_replace('/<a\b[^>]*>\s*Voltar(?:\s+ao\s+login)?\s*<\/a>\s*/i', '', $html) ?? $html;
+        $html = preg_replace('/<div\s+class="footer-links">\s*<\/div>/i', '', $html) ?? $html;
+
         return $html;
     }
 }

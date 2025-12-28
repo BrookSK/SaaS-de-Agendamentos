@@ -10,8 +10,8 @@ a:hover{text-decoration:underline}
 .h2{font-size:18px;margin:18px 0 8px;color:var(--muted)}
 .p{margin:8px 0;color:var(--muted)}
 .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.field{margin-top:12px}
-label{display:block;font-size:14px;color:var(--muted);margin-bottom:6px}
+.field{margin-top:16px}
+label{display:block;font-size:14px;color:var(--muted);margin-bottom:4px}
 input,select,textarea{width:100%;max-width:520px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);outline:none}
 input:focus,select:focus,textarea:focus{border-color:rgba(79,140,255,.65);box-shadow:0 0 0 3px rgba(79,140,255,.15)}
 button{padding:10px 14px;border-radius:10px;border:1px solid rgba(37,99,235,.25);background:rgba(37,99,235,.08);color:var(--text);cursor:pointer}
@@ -27,6 +27,9 @@ button:hover{background:rgba(37,99,235,.12)}
 .table th{color:var(--muted);font-weight:600}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 .footer-links{margin-top:16px;display:flex;gap:14px;flex-wrap:wrap}
+
+/* Reduce weird gaps caused by legacy <br> inside forms */
+form br{display:none}
 
 /* Cards should be light now */
 .card{background:var(--card)}
@@ -57,7 +60,7 @@ input,select,textarea{background:var(--card)}
 
 /* Global form/table beautification inside app */
 .app-main form{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin:0 0 16px}
-.app-main form > div{margin-top:12px}
+.app-main form > div{margin-top:16px !important}
 .app-main label{font-weight:600;color:var(--muted)}
 .app-main input,.app-main select,.app-main textarea{max-width:100%;width:100%}
 .app-main button{background:rgba(37,99,235,.10)}
