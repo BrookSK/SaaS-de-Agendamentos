@@ -15,6 +15,8 @@ final class SuperAdminSettingsController extends Controller
     private const KEYS = [
         'system.name',
         'system.description',
+        'branding.logo_path',
+        'branding.favicon_path',
         'smtp.host',
         'smtp.port',
         'smtp.encryption',
@@ -58,6 +60,53 @@ final class SuperAdminSettingsController extends Controller
             'smtp.from_email' => trim((string)$request->input('smtp_from_email', '')),
             'smtp.from_name' => trim((string)$request->input('smtp_from_name', '')),
         ];
+
+        $uploadDir = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'branding';
+        if (!is_dir($uploadDir)) {
+            @mkdir($uploadDir, 0775, true);
+        }
+
+        $saveUploaded = static function (string $field, array $allowedExt) use ($uploadDir): ?string {
+            if (!isset($_FILES[$field]) || !is_array($_FILES[$field])) {
+                return null;
+            }
+
+            $f = $_FILES[$field];
+            if (!isset($f['error'], $f['tmp_name'], $f['name']) || (int)$f['error'] !== UPLOAD_ERR_OK) {
+                return null;
+            }
+
+            $orig = (string)$f['name'];
+            $ext = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
+            if ($ext === '' || !in_array($ext, $allowedExt, true)) {
+                return null;
+            }
+
+            $tmp = (string)$f['tmp_name'];
+            if (!is_uploaded_file($tmp)) {
+                return null;
+            }
+
+            $base = $field . '-' . date('YmdHis') . '-' . bin2hex(random_bytes(4));
+            $filename = $base . '.' . $ext;
+            $dest = $uploadDir . DIRECTORY_SEPARATOR . $filename;
+
+            if (!@move_uploaded_file($tmp, $dest)) {
+                return null;
+            }
+
+            return '/uploads/branding/' . $filename;
+        };
+
+        $newLogo = $saveUploaded('branding_logo', ['png', 'jpg', 'jpeg', 'webp', 'svg']);
+        if (is_string($newLogo) && $newLogo !== '') {
+            $values['branding.logo_path'] = $newLogo;
+        }
+
+        $newFavicon = $saveUploaded('branding_favicon', ['ico', 'png', 'jpg', 'jpeg', 'webp', 'svg']);
+        if (is_string($newFavicon) && $newFavicon !== '') {
+            $values['branding.favicon_path'] = $newFavicon;
+        }
 
         if (!in_array($values['smtp.encryption'], ['none', 'tls', 'ssl'], true)) {
             $values['smtp.encryption'] = 'none';

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Models\SystemSetting;
+
 final class View
 {
     public static function render(string $view, array $data = []): string
@@ -35,17 +37,31 @@ final class View
             $html = preg_replace('/<head(\b[^>]*)>/i', '<head$1>' . $link, $html, 1) ?? $html;
         }
 
+        $systemName = (string)SystemSetting::get('system.name', 'Agenda SaaS');
+        $logoPath = (string)SystemSetting::get('branding.logo_path', '');
+        $faviconPath = (string)SystemSetting::get('branding.favicon_path', '');
+
+        if (stripos($html, '<head') !== false && $faviconPath !== '' && stripos($html, 'rel="icon"') === false) {
+            $v = time();
+            $iconHref = $faviconPath . '?v=' . $v;
+            $iconLink = "\n    <link rel=\"icon\" href=\"" . htmlspecialchars($iconHref) . "\">\n";
+            $html = preg_replace('/<head(\b[^>]*)>/i', '<head$1>' . $iconLink, $html, 1) ?? $html;
+        }
+
         if ((str_starts_with($view, 'auth/') || str_starts_with($view, 'public/') || str_starts_with($view, 'home/')) && stripos($html, '<body') !== false) {
+            $brand = $logoPath !== ''
+                ? ('<img src="' . htmlspecialchars($logoPath) . '" alt="' . htmlspecialchars($systemName) . '" class="brand-logo">')
+                : htmlspecialchars($systemName);
             $shellStart = '<body class="guest">'
                 . '<header class="guest-header">'
-                . '<div class="guest-brand">Agenda SaaS</div>'
+                . '<div class="guest-brand">' . $brand . '</div>'
                 . '</header>'
                 . '<main class="guest-main">'
                 . '<div class="guest-card">';
 
             $shellEnd = '</div>'
                 . '</main>'
-                . '<footer class="guest-footer">© ' . date('Y') . ' Agenda SaaS</footer>'
+                . '<footer class="guest-footer">© ' . date('Y') . ' ' . htmlspecialchars($systemName) . '</footer>'
                 . '</body>';
 
             $html = preg_replace('/<body(\b[^>]*)>/i', $shellStart, $html, 1) ?? $html;
@@ -90,9 +106,12 @@ final class View
 
             $logoutAction = $role === 'super_admin' ? '/logout' : ($prefix . '/logout');
 
+            $brand = $logoPath !== ''
+                ? ('<img src="' . htmlspecialchars($logoPath) . '" alt="' . htmlspecialchars($systemName) . '" class="brand-logo">')
+                : htmlspecialchars($systemName);
             $shellStart = '<body class="app">'
                 . '<header class="app-header">'
-                . '<div class="app-brand">Agenda SaaS</div>'
+                . '<div class="app-brand">' . $brand . '</div>'
                 . '<button class="app-menu-btn" type="button" aria-label="Menu" onclick="document.body.classList.toggle(\'nav-open\')">Menu</button>'
                 . '<div class="app-user">'
                 . '<span class="app-user-email">' . htmlspecialchars($userEmail) . '</span>'
@@ -108,7 +127,7 @@ final class View
 
             $shellEnd = '</main>'
                 . '</div>'
-                . '<footer class="app-footer">© ' . date('Y') . ' Agenda SaaS</footer>'
+                . '<footer class="app-footer">© ' . date('Y') . ' ' . htmlspecialchars($systemName) . '</footer>'
                 . '<script>(function(){function closeNav(){document.body.classList.remove("nav-open");}document.addEventListener("click",function(e){var nav=document.querySelector(".app-nav");var btn=document.querySelector(".app-menu-btn");if(!nav||!btn){return;}if(document.body.classList.contains("nav-open")&&!nav.contains(e.target)&&!btn.contains(e.target)){closeNav();}});})();</script>'
                 . '</body>';
 

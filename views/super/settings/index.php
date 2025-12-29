@@ -23,7 +23,7 @@
         <p style="color: #b00;"><strong><?php echo htmlspecialchars($error); ?></strong></p>
     <?php endif; ?>
 
-    <form method="post" action="/super/settings">
+    <form method="post" action="/super/settings" enctype="multipart/form-data">
         <h2>White Label</h2>
         <div>
             <label>Nome do sistema</label><br>
@@ -32,6 +32,26 @@
         <div style="margin-top: 8px;">
             <label>Descrição (SEO)</label><br>
             <textarea name="system_description" rows="3" cols="60"><?php echo htmlspecialchars($settings['system.description'] ?? ''); ?></textarea>
+        </div>
+
+        <div style="margin-top: 8px;">
+            <label>Logo do sistema</label><br>
+            <input type="file" name="branding_logo" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+            <?php $logoPath = (string)($settings['branding.logo_path'] ?? ''); ?>
+            <?php if ($logoPath !== ''): ?>
+                <div style="margin-top: 8px;" class="small">Atual:</div>
+                <div style="margin-top: 6px;"><img src="<?php echo htmlspecialchars($logoPath); ?>" alt="Logo" style="max-height:44px;max-width:220px;display:block"></div>
+            <?php endif; ?>
+        </div>
+
+        <div style="margin-top: 8px;">
+            <label>Favicon</label><br>
+            <input type="file" name="branding_favicon" accept="image/x-icon,image/png,image/jpeg,image/webp,image/svg+xml">
+            <?php $faviconPath = (string)($settings['branding.favicon_path'] ?? ''); ?>
+            <?php if ($faviconPath !== ''): ?>
+                <div style="margin-top: 8px;" class="small">Atual:</div>
+                <div style="margin-top: 6px;"><img src="<?php echo htmlspecialchars($faviconPath); ?>" alt="Favicon" style="height:22px;width:22px;display:block"></div>
+            <?php endif; ?>
         </div>
 
         <h2 style="margin-top: 16px;">SMTP</h2>
