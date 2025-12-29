@@ -1,0 +1,6 @@
+# Uploads (arquivos enviados)
+/public/uploads/**
+!/public/uploads/**/.gitkeep
+
+/uploads/**
+!/uploads/**/.gitkeep

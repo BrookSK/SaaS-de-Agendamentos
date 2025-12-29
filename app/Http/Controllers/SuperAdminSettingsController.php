@@ -72,6 +72,10 @@ final class SuperAdminSettingsController extends Controller
             @mkdir($uploadDirRoot, 0775, true);
         }
 
+        if (!is_dir($uploadDirPublic) || !is_dir($uploadDirRoot)) {
+            return Response::redirect('/super/settings?error=' . rawurlencode('Falha ao criar pasta de uploads (branding).'));
+        }
+
         $saveUploaded = static function (string $field, array $allowedExt) use ($uploadDirPublic, $uploadDirRoot): ?string {
             if (!isset($_FILES[$field]) || !is_array($_FILES[$field])) {
                 return null;
@@ -114,14 +118,20 @@ final class SuperAdminSettingsController extends Controller
             return '/uploads/branding/' . $filename;
         };
 
+        $uploadErrors = [];
+
         $newLogo = $saveUploaded('branding_logo', ['png', 'jpg', 'jpeg', 'webp', 'svg']);
         if (is_string($newLogo) && $newLogo !== '') {
             $values['branding.logo_path'] = $newLogo;
+        } elseif (isset($_FILES['branding_logo']) && is_array($_FILES['branding_logo']) && (int)($_FILES['branding_logo']['error'] ?? 0) === UPLOAD_ERR_OK) {
+            $uploadErrors[] = 'Logo';
         }
 
         $newFavicon = $saveUploaded('branding_favicon', ['ico', 'png', 'jpg', 'jpeg', 'webp', 'svg']);
         if (is_string($newFavicon) && $newFavicon !== '') {
             $values['branding.favicon_path'] = $newFavicon;
+        } elseif (isset($_FILES['branding_favicon']) && is_array($_FILES['branding_favicon']) && (int)($_FILES['branding_favicon']['error'] ?? 0) === UPLOAD_ERR_OK) {
+            $uploadErrors[] = 'Favicon';
         }
 
         if (!in_array($values['smtp.encryption'], ['none', 'tls', 'ssl'], true)) {
@@ -129,6 +139,10 @@ final class SuperAdminSettingsController extends Controller
         }
 
         SystemSetting::setMany($values);
+
+        if ($uploadErrors !== []) {
+            return Response::redirect('/super/settings?error=' . rawurlencode('Falha ao salvar: ' . implode(', ', $uploadErrors) . '. Verifique permissões/formatos.'));
+        }
 
         return Response::redirect('/super/settings?message=Salvo');
     }
