@@ -40,6 +40,41 @@ final class Tenant
         );
     }
 
+    public static function slugExists(string $slug, ?int $excludeId = null): bool
+    {
+        $pdo = Db::pdo();
+        if ($excludeId !== null) {
+            $stmt = $pdo->prepare('SELECT 1 FROM tenants WHERE slug = :slug AND id <> :id LIMIT 1');
+            $stmt->execute(['slug' => $slug, 'id' => $excludeId]);
+        } else {
+            $stmt = $pdo->prepare('SELECT 1 FROM tenants WHERE slug = :slug LIMIT 1');
+            $stmt->execute(['slug' => $slug]);
+        }
+
+        return (bool)$stmt->fetchColumn();
+    }
+
+    public static function uniqueSlug(string $baseSlug, ?int $excludeId = null): string
+    {
+        $slug = $baseSlug;
+        if ($slug === '') {
+            return $slug;
+        }
+
+        if (!self::slugExists($slug, $excludeId)) {
+            return $slug;
+        }
+
+        for ($i = 2; $i <= 50; $i++) {
+            $candidate = $baseSlug . '-' . $i;
+            if (!self::slugExists($candidate, $excludeId)) {
+                return $candidate;
+            }
+        }
+
+        return $baseSlug . '-' . time();
+    }
+
     public static function findById(int $id): ?self
     {
         $pdo = Db::pdo();

@@ -56,6 +56,8 @@ final class SuperAdminTenantsController extends Controller
             return Response::redirect('/super/tenants');
         }
 
+        $slug = Tenant::uniqueSlug($slug);
+
         if ($adminEmail === '' || !filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
             return Response::redirect('/super/tenants');
         }
@@ -201,6 +203,8 @@ final class SuperAdminTenantsController extends Controller
         if ($name === '' || $slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
             return Response::redirect('/super/tenants/' . $id . '/edit');
         }
+
+        $slug = Tenant::uniqueSlug($slug, $id);
 
         if (!in_array($status, ['active', 'blocked'], true)) {
             $status = 'active';
