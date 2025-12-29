@@ -61,12 +61,18 @@ final class SuperAdminSettingsController extends Controller
             'smtp.from_name' => trim((string)$request->input('smtp_from_name', '')),
         ];
 
-        $uploadDir = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'branding';
-        if (!is_dir($uploadDir)) {
-            @mkdir($uploadDir, 0775, true);
+        $projectRoot = dirname(__DIR__, 4);
+        $uploadDirPublic = $projectRoot . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'branding';
+        $uploadDirRoot = $projectRoot . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'branding';
+
+        if (!is_dir($uploadDirPublic)) {
+            @mkdir($uploadDirPublic, 0775, true);
+        }
+        if (!is_dir($uploadDirRoot)) {
+            @mkdir($uploadDirRoot, 0775, true);
         }
 
-        $saveUploaded = static function (string $field, array $allowedExt) use ($uploadDir): ?string {
+        $saveUploaded = static function (string $field, array $allowedExt) use ($uploadDirPublic, $uploadDirRoot): ?string {
             if (!isset($_FILES[$field]) || !is_array($_FILES[$field])) {
                 return null;
             }
@@ -89,9 +95,19 @@ final class SuperAdminSettingsController extends Controller
 
             $base = $field . '-' . date('YmdHis') . '-' . bin2hex(random_bytes(4));
             $filename = $base . '.' . $ext;
-            $dest = $uploadDir . DIRECTORY_SEPARATOR . $filename;
+            $destPublic = $uploadDirPublic . DIRECTORY_SEPARATOR . $filename;
+            $destRoot = $uploadDirRoot . DIRECTORY_SEPARATOR . $filename;
 
-            if (!@move_uploaded_file($tmp, $dest)) {
+            $moved = false;
+            if (@move_uploaded_file($tmp, $destPublic)) {
+                $moved = true;
+                @copy($destPublic, $destRoot);
+            } elseif (@move_uploaded_file($tmp, $destRoot)) {
+                $moved = true;
+                @copy($destRoot, $destPublic);
+            }
+
+            if (!$moved) {
                 return null;
             }
 
