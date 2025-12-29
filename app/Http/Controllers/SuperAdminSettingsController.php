@@ -61,7 +61,7 @@ final class SuperAdminSettingsController extends Controller
             'smtp.from_name' => trim((string)$request->input('smtp_from_name', '')),
         ];
 
-        $projectRoot = dirname(__DIR__, 4);
+        $projectRoot = dirname(__DIR__, 3);
         $uploadDirPublic = $projectRoot . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'branding';
         $uploadDirRoot = $projectRoot . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'branding';
 
@@ -123,15 +123,25 @@ final class SuperAdminSettingsController extends Controller
         $newLogo = $saveUploaded('branding_logo', ['png', 'jpg', 'jpeg', 'webp', 'svg']);
         if (is_string($newLogo) && $newLogo !== '') {
             $values['branding.logo_path'] = $newLogo;
-        } elseif (isset($_FILES['branding_logo']) && is_array($_FILES['branding_logo']) && (int)($_FILES['branding_logo']['error'] ?? 0) === UPLOAD_ERR_OK) {
-            $uploadErrors[] = 'Logo';
+        } elseif (isset($_FILES['branding_logo']) && is_array($_FILES['branding_logo'])) {
+            $err = (int)($_FILES['branding_logo']['error'] ?? UPLOAD_ERR_NO_FILE);
+            if ($err !== UPLOAD_ERR_NO_FILE) {
+                $uploadErrors[] = $err === UPLOAD_ERR_OK
+                    ? 'Logo (não foi possível salvar: verifique permissões da pasta uploads/branding)'
+                    : 'Logo (erro de upload PHP #' . $err . ')';
+            }
         }
 
         $newFavicon = $saveUploaded('branding_favicon', ['ico', 'png', 'jpg', 'jpeg', 'webp', 'svg']);
         if (is_string($newFavicon) && $newFavicon !== '') {
             $values['branding.favicon_path'] = $newFavicon;
-        } elseif (isset($_FILES['branding_favicon']) && is_array($_FILES['branding_favicon']) && (int)($_FILES['branding_favicon']['error'] ?? 0) === UPLOAD_ERR_OK) {
-            $uploadErrors[] = 'Favicon';
+        } elseif (isset($_FILES['branding_favicon']) && is_array($_FILES['branding_favicon'])) {
+            $err = (int)($_FILES['branding_favicon']['error'] ?? UPLOAD_ERR_NO_FILE);
+            if ($err !== UPLOAD_ERR_NO_FILE) {
+                $uploadErrors[] = $err === UPLOAD_ERR_OK
+                    ? 'Favicon (não foi possível salvar: verifique permissões da pasta uploads/branding)'
+                    : 'Favicon (erro de upload PHP #' . $err . ')';
+            }
         }
 
         if (!in_array($values['smtp.encryption'], ['none', 'tls', 'ssl'], true)) {
