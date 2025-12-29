@@ -36,6 +36,52 @@ final class Routes
 {
     public static function register(Router $router): void
     {
+        $router->get('/uploads/branding/{file}', static function (Request $request, array $params): Response {
+            $file = (string)($params['file'] ?? '');
+
+            if ($file === '' || str_contains($file, '..') || str_contains($file, '/') || str_contains($file, '\\')) {
+                return Response::html('404 - Arquivo não encontrado', 404);
+            }
+
+            $projectRoot = dirname(__DIR__, 2);
+            $paths = [
+                $projectRoot . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'branding' . DIRECTORY_SEPARATOR . $file,
+                $projectRoot . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'branding' . DIRECTORY_SEPARATOR . $file,
+            ];
+
+            $found = null;
+            foreach ($paths as $p) {
+                if (is_file($p)) {
+                    $found = $p;
+                    break;
+                }
+            }
+
+            if ($found === null) {
+                return Response::html('404 - Arquivo não encontrado', 404);
+            }
+
+            $ext = strtolower(pathinfo($found, PATHINFO_EXTENSION));
+            $contentType = match ($ext) {
+                'png' => 'image/png',
+                'jpg', 'jpeg' => 'image/jpeg',
+                'webp' => 'image/webp',
+                'svg' => 'image/svg+xml',
+                'ico' => 'image/x-icon',
+                default => 'application/octet-stream',
+            };
+
+            $body = (string)@file_get_contents($found);
+            if ($body === '') {
+                return Response::html('404 - Arquivo não encontrado', 404);
+            }
+
+            return new Response($body, 200, [
+                'Content-Type' => $contentType,
+                'Cache-Control' => 'public, max-age=31536000',
+            ]);
+        });
+
         $router->get('/', static fn () => Response::redirect('/login'));
 
         $router->get('/login', [AuthController::class, 'showLogin']);
