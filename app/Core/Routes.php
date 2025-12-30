@@ -31,6 +31,10 @@ use App\Http\Controllers\TenantDashboardController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\SuperAdminWebhooksController;
 use App\Http\Controllers\TenantNotificationSettingsController;
+use App\Http\Controllers\TenantSubscriptionController;
+use App\Http\Controllers\TenantCompanySettingsController;
+use App\Http\Controllers\TenantCalendarController;
+use App\Http\Controllers\TenantPagesController;
 
 final class Routes
 {
@@ -124,6 +128,13 @@ final class Routes
         $router->post('/webhooks/asaas', [WebhooksAsaasController::class, 'handle']);
 
         $router->get('/dashboard', [TenantDashboardController::class, 'dashboard']);
+
+        $router->get('/subscription', [TenantSubscriptionController::class, 'index']);
+        $router->get('/calendars', [TenantCalendarController::class, 'index']);
+        $router->get('/settings/company', [TenantCompanySettingsController::class, 'index']);
+        $router->get('/affiliate', [TenantPagesController::class, 'affiliate']);
+        $router->get('/domain', [TenantPagesController::class, 'domain']);
+        $router->get('/locations', [TenantPagesController::class, 'locations']);
 
         $router->get('/settings/business-hours', [TenantBusinessHoursController::class, 'index']);
         $router->post('/settings/business-hours', [TenantBusinessHoursController::class, 'store']);

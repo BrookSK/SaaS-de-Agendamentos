@@ -20,6 +20,23 @@ final class View
         require $path;
         $html = (string)ob_get_clean();
 
+        $toAbsoluteUrl = static function (string $path): string {
+            if ($path === '') {
+                return '';
+            }
+
+            if (preg_match('#^https?://#i', $path) === 1) {
+                return $path;
+            }
+
+            $base = Url::base('');
+            if (str_starts_with($path, '/')) {
+                return $base . $path;
+            }
+
+            return $base . '/' . ltrim($path, '/');
+        };
+
         if (stripos($html, '<head') !== false && stripos($html, '/assets/app.css') === false) {
             $projectRoot = dirname(__DIR__, 2);
             $publicCss = $projectRoot . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'app.css';
@@ -33,6 +50,7 @@ final class View
             }
 
             $href = '/assets/app.css' . ($v ? ('?v=' . $v) : '');
+            $href = $toAbsoluteUrl($href);
             $link = "\n    <link rel=\"stylesheet\" href=\"" . htmlspecialchars($href) . "\">\n";
             $html = preg_replace('/<head(\b[^>]*)>/i', '<head$1>' . $link, $html, 1) ?? $html;
         }
@@ -41,16 +59,19 @@ final class View
         $logoPath = (string)SystemSetting::get('branding.logo_path', '');
         $faviconPath = (string)SystemSetting::get('branding.favicon_path', '');
 
-        if (stripos($html, '<head') !== false && $faviconPath !== '' && stripos($html, 'rel="icon"') === false) {
+        $logoUrl = $toAbsoluteUrl($logoPath);
+        $faviconUrl = $toAbsoluteUrl($faviconPath);
+
+        if (stripos($html, '<head') !== false && $faviconUrl !== '' && stripos($html, 'rel="icon"') === false) {
             $v = time();
-            $iconHref = $faviconPath . '?v=' . $v;
+            $iconHref = $faviconUrl . '?v=' . $v;
             $iconLink = "\n    <link rel=\"icon\" href=\"" . htmlspecialchars($iconHref) . "\">\n";
             $html = preg_replace('/<head(\b[^>]*)>/i', '<head$1>' . $iconLink, $html, 1) ?? $html;
         }
 
         if ((str_starts_with($view, 'auth/') || str_starts_with($view, 'public/') || str_starts_with($view, 'home/')) && stripos($html, '<body') !== false) {
-            $brand = $logoPath !== ''
-                ? ('<img src="' . htmlspecialchars($logoPath) . '" alt="' . htmlspecialchars($systemName) . '" class="brand-logo">')
+            $brand = $logoUrl !== ''
+                ? ('<img src="' . htmlspecialchars($logoUrl) . '" alt="' . htmlspecialchars($systemName) . '" class="brand-logo">')
                 : htmlspecialchars($systemName);
             $shellStart = '<body class="guest">'
                 . '<header class="guest-header">'
@@ -85,6 +106,10 @@ final class View
                     'audit' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l8 4v6c0 5-3.5 9.7-8 10-4.5-.3-8-5-8-10V6l8-4zm0 2.2L6 6.5v5.3c0 3.8 2.5 7.4 6 8 3.5-.6 6-4.2 6-8V6.5l-6-2.3z"/></svg>',
                     'settings' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.9 1h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 7.48a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.63-.05.94s.02.63.05.94L2.83 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.3.6.22l2.39-.96c.51.4 1.05.71 1.63.94l.36 2.54c.04.24.25.42.49.42h3.8c.24 0 .45-.18.49-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"/></svg>',
                     'payments' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7zm2 0v1h14V7H5zm0 4v6h14v-6H5z"/></svg>',
+                    'subscription' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 7l-9-5-9 5v10l9 5 9-5V7zm-9 13l-7-3.9V8.1l7 3.9 7-3.9v8L12 20zm0-9.2L5.7 7.2 12 3.8l6.3 3.4L12 10.8z"/></svg>',
+                    'affiliate' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16 11c1.7 0 3-1.3 3-3S17.7 5 16 5s-3 1.3-3 3 1.3 3 3 3zM8 11c1.7 0 3-1.3 3-3S9.7 5 8 5 5 6.3 5 8s1.3 3 3 3zm0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13zm8 0c-.3 0-.6 0-.9.1 1.1.8 1.9 1.8 1.9 3.4V19h7v-2.5c0-2.3-4.7-3.5-7-3.5z"/></svg>',
+                    'domain' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm7.9 9h-3.1a15.9 15.9 0 0 0-1.2-5A8 8 0 0 1 19.9 11zM12 4c.9 1.2 1.7 3.2 2.1 7H9.9c.4-3.8 1.2-5.8 2.1-7zM4.1 13h3.1a15.9 15.9 0 0 0 1.2 5A8 8 0 0 1 4.1 13zM4.1 11A8 8 0 0 1 8.4 6c-.6 1.5-1 3.2-1.2 5H4.1zm5.8 2h4.2c-.4 3.8-1.2 5.8-2.1 7-.9-1.2-1.7-3.2-2.1-7zm6.4 5c.6-1.5 1-3.2 1.2-5h3.1a8 8 0 0 1-4.3 5z"/></svg>',
+                    'locations' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>',
                     'calendar' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 2h2v2h6V2h2v2h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3V2zm15 8H2v10h20V10z"/></svg>',
                     'services' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.7 20.3l-6.1-6.1 1.4-1.4 6.1 6.1-1.4 1.4zM10 18a8 8 0 1 1 5.3-14l-1.4 1.4A6 6 0 1 0 16 10c0 1.6-.6 3-1.6 4.1L18 17.7A7.97 7.97 0 0 1 10 18z"/></svg>',
                     'employees' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16 11c1.7 0 3-1.3 3-3S17.7 5 16 5s-3 1.3-3 3 1.3 3 3 3zM8 11c1.7 0 3-1.3 3-3S9.7 5 8 5 5 6.3 5 8s1.3 3 3 3zm0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13zm8 0c-.3 0-.6 0-.9.1 1.1.8 1.9 1.8 1.9 3.4V19h7v-2.5c0-2.3-4.7-3.5-7-3.5z"/></svg>',
@@ -114,21 +139,23 @@ final class View
                 $navLinks .= $makeNavLink('/super/settings', 'Configurações', $icon('settings')) . PHP_EOL;
                 $navLinks .= $makeNavLink('/super/asaas', 'Asaas', $icon('payments')) . PHP_EOL;
             } else {
-                $navLinks .= $makeNavLink($prefix . '/dashboard', 'Dashboard', $icon('dashboard')) . PHP_EOL;
-                $navLinks .= $makeNavLink($prefix . '/agenda', 'Agenda', $icon('calendar')) . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/dashboard', 'Painel', $icon('dashboard')) . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/subscription', 'Assinatura', $icon('subscription')) . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/settings/company', 'Configurações', $icon('settings')) . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/affiliate', 'Afiliado', $icon('affiliate')) . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/domain', 'Domínio personalizado', $icon('domain')) . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/agenda', 'Agendamentos', $icon('calendar')) . PHP_EOL;
                 $navLinks .= $makeNavLink($prefix . '/services', 'Serviços', $icon('services')) . PHP_EOL;
-                $navLinks .= $makeNavLink($prefix . '/employees', 'Profissionais', $icon('employees')) . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/employees', 'Equipe', $icon('employees')) . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/locations', 'Localizações', $icon('locations')) . PHP_EOL;
                 $navLinks .= $makeNavLink($prefix . '/clients', 'Clientes', $icon('clients')) . PHP_EOL;
-                $navLinks .= $makeNavLink($prefix . '/finance', 'Financeiro', $icon('finance')) . PHP_EOL;
-                $navLinks .= $makeNavLink($prefix . '/reports', 'Relatórios', $icon('reports')) . PHP_EOL;
-                $navLinks .= $makeNavLink($prefix . '/settings/notifications', 'Notificações', $icon('notifications')) . PHP_EOL;
-                $navLinks .= $makeNavLink($prefix . '/audit', 'Auditoria', $icon('audit')) . PHP_EOL;
+                $navLinks .= $makeNavLink($prefix . '/calendars', 'Calendários', $icon('calendar')) . PHP_EOL;
             }
 
             $logoutAction = $role === 'super_admin' ? '/logout' : ($prefix . '/logout');
 
-            $brand = $logoPath !== ''
-                ? ('<img src="' . htmlspecialchars($logoPath) . '" alt="' . htmlspecialchars($systemName) . '" class="brand-logo">')
+            $brand = $logoUrl !== ''
+                ? ('<img src="' . htmlspecialchars($logoUrl) . '" alt="' . htmlspecialchars($systemName) . '" class="brand-logo">')
                 : htmlspecialchars($systemName);
             $shellStart = '<body class="app">'
                 . '<header class="app-header">'

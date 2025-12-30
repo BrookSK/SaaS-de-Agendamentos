@@ -30,6 +30,34 @@ final class Appointment
         return $stmt->fetchAll();
     }
 
+    /** @return array<int, array<string, mixed>> */
+    public static function listForMonth(int $tenantId, int $year, int $month): array
+    {
+        $month = max(1, min(12, $month));
+        $start = sprintf('%04d-%02d-01 00:00:00', $year, $month);
+        $end = date('Y-m-d H:i:s', strtotime($start . ' +1 month'));
+
+        $pdo = Db::pdo();
+        $stmt = $pdo->prepare(
+            'SELECT a.*, e.name AS employee_name, c.name AS client_name, s.name AS service_name
+             FROM appointments a
+             INNER JOIN employees e ON e.id = a.employee_id
+             INNER JOIN clients c ON c.id = a.client_id
+             INNER JOIN services s ON s.id = a.service_id
+             WHERE a.tenant_id = :tenant_id
+               AND a.starts_at >= :start
+               AND a.starts_at < :end
+             ORDER BY a.starts_at ASC'
+        );
+        $stmt->execute([
+            'tenant_id' => $tenantId,
+            'start' => $start,
+            'end' => $end,
+        ]);
+
+        return $stmt->fetchAll();
+    }
+
     public static function create(
         int $tenantId,
         int $employeeId,
