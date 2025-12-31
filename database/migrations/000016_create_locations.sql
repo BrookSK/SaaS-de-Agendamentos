@@ -1,0 +1,14 @@
+
+
+CREATE TABLE IF NOT EXISTS locations (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id INT UNSIGNED NOT NULL,
+  name VARCHAR(150) NOT NULL,
+  address VARCHAR(255) NULL,
+  phone VARCHAR(30) NULL,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL,
+  KEY idx_locations_tenant (tenant_id),
+  CONSTRAINT fk_locations_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
+) ENGINE=InnoDB;

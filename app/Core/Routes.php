@@ -35,6 +35,7 @@ use App\Http\Controllers\TenantSubscriptionController;
 use App\Http\Controllers\TenantCompanySettingsController;
 use App\Http\Controllers\TenantCalendarController;
 use App\Http\Controllers\TenantPagesController;
+use App\Http\Controllers\TenantLocationsController;
 
 final class Routes
 {
@@ -130,11 +131,16 @@ final class Routes
         $router->get('/dashboard', [TenantDashboardController::class, 'dashboard']);
 
         $router->get('/subscription', [TenantSubscriptionController::class, 'index']);
+        $router->post('/subscription/change-plan', [TenantSubscriptionController::class, 'changePlan']);
+        $router->get('/subscription/invoices', [TenantSubscriptionController::class, 'invoices']);
         $router->get('/calendars', [TenantCalendarController::class, 'index']);
         $router->get('/settings/company', [TenantCompanySettingsController::class, 'index']);
+        $router->post('/settings/company', [TenantCompanySettingsController::class, 'store']);
         $router->get('/affiliate', [TenantPagesController::class, 'affiliate']);
         $router->get('/domain', [TenantPagesController::class, 'domain']);
-        $router->get('/locations', [TenantPagesController::class, 'locations']);
+        $router->get('/locations', [TenantLocationsController::class, 'index']);
+        $router->post('/locations', [TenantLocationsController::class, 'store']);
+        $router->post('/locations/delete', [TenantLocationsController::class, 'delete']);
 
         $router->get('/settings/business-hours', [TenantBusinessHoursController::class, 'index']);
         $router->post('/settings/business-hours', [TenantBusinessHoursController::class, 'store']);

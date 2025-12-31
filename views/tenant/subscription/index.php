@@ -29,11 +29,16 @@ $cycle = $currentPlan ? ($currentPlan->billingCycle === 'annual' ? 'ano' : ($cur
             </div>
         </div>
 
+        <?php $message = $_GET['message'] ?? null; ?>
+        <?php if (is_string($message) && $message !== ''): ?>
+            <div class="notice success"><strong><?php echo htmlspecialchars($message); ?></strong></div>
+        <?php endif; ?>
+
         <div class="tenant-subscription-layout">
             <div class="tenant-subscription-summary card">
                 <div class="tenant-subscription-summary-header">
                     <div class="tenant-subscription-summary-title">Assinatura</div>
-                    <a class="btn" href="#">Visualizar Fatura</a>
+                    <a class="btn" href="<?php echo htmlspecialchars($prefix . '/subscription/invoices'); ?>">Visualizar Fatura</a>
                 </div>
 
                 <div class="tenant-subscription-kv">
@@ -78,7 +83,10 @@ $cycle = $currentPlan ? ($currentPlan->billingCycle === 'annual' ? 'ano' : ($cur
                             <?php if ($isCurrent): ?>
                                 <button class="btn" type="button" disabled>Plano atual</button>
                             <?php else: ?>
-                                <button class="btn" type="button">Selecionar</button>
+                                <form method="post" action="<?php echo htmlspecialchars($prefix . '/subscription/change-plan'); ?>">
+                                    <input type="hidden" name="plan_id" value="<?php echo (int)$p->id; ?>">
+                                    <button class="btn" type="submit">Selecionar</button>
+                                </form>
                             <?php endif; ?>
                         </div>
                     </div>

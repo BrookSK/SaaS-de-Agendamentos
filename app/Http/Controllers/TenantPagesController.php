@@ -14,19 +14,24 @@ final class TenantPagesController extends Controller
     /** @param array<string,string> $params */
     public function affiliate(Request $request, array $params): Response
     {
-        return $this->placeholder($request, 'Afiliado', 'Em breve');
+        $tenant = Tenant::current();
+        if ($tenant === null || $tenant->tenantId === null) {
+            return Response::html('Tenant inválido.', 400);
+        }
+
+        if ($resp = Auth::requireRole('tenant_admin')) {
+            return $resp;
+        }
+
+        return $this->view('tenant/affiliate/index', [
+            'tenant' => $tenant,
+        ]);
     }
 
     /** @param array<string,string> $params */
     public function domain(Request $request, array $params): Response
     {
         return $this->placeholder($request, 'Domínio personalizado', 'Em breve');
-    }
-
-    /** @param array<string,string> $params */
-    public function locations(Request $request, array $params): Response
-    {
-        return $this->placeholder($request, 'Localizações', 'Em breve');
     }
 
     /** @param array<string,string> $params */

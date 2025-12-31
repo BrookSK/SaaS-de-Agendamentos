@@ -10,6 +10,7 @@ use App\Core\Response;
 use App\Core\Tenant;
 use App\Models\Plan;
 use App\Models\TenantSubscription;
+use App\Models\TenantSubscriptionPayment;
 
 final class TenantSubscriptionController extends Controller
 {
@@ -38,6 +39,59 @@ final class TenantSubscriptionController extends Controller
             'subscription' => $sub,
             'currentPlan' => $plan,
             'plans' => $plans,
+        ]);
+    }
+
+    /** @param array<string,string> $params */
+    public function changePlan(Request $request, array $params): Response
+    {
+        $tenant = Tenant::current();
+        if ($tenant === null || $tenant->tenantId === null) {
+            return Response::html('Tenant inválido.', 400);
+        }
+
+        if ($resp = Auth::requireRole('tenant_admin')) {
+            return $resp;
+        }
+
+        $planId = (int)$request->input('plan_id', 0);
+        $plan = $planId > 0 ? Plan::findById($planId) : null;
+        if ($plan === null || $plan->active !== 1) {
+            return Response::redirect($tenant->urlPrefix() . '/subscription');
+        }
+
+        TenantSubscription::upsertForTenant($tenant->tenantId, $plan->id, 'active');
+
+        $sub = TenantSubscription::latestByTenant($tenant->tenantId);
+        if (is_array($sub) && isset($sub['id']) && $plan->priceCents > 0) {
+            TenantSubscriptionPayment::createManual((int)$sub['id'], (int)$plan->priceCents, 'pending');
+        }
+
+        return Response::redirect($tenant->urlPrefix() . '/subscription?message=' . rawurlencode('Plano atualizado'));
+    }
+
+    /** @param array<string,string> $params */
+    public function invoices(Request $request, array $params): Response
+    {
+        $tenant = Tenant::current();
+        if ($tenant === null || $tenant->tenantId === null) {
+            return Response::html('Tenant inválido.', 400);
+        }
+
+        if ($resp = Auth::requireRole('tenant_admin')) {
+            return $resp;
+        }
+
+        $sub = TenantSubscription::latestByTenant($tenant->tenantId);
+        $payments = [];
+        if (is_array($sub) && isset($sub['id'])) {
+            $payments = TenantSubscriptionPayment::listBySubscription((int)$sub['id']);
+        }
+
+        return $this->view('tenant/subscription/invoices', [
+            'tenant' => $tenant,
+            'subscription' => $sub,
+            'payments' => $payments,
         ]);
     }
 }

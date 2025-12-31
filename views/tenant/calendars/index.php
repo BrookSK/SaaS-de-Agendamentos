@@ -2,9 +2,31 @@
 /** @var \App\Core\ResolvedTenant $tenant */
 /** @var int $year */
 /** @var int $month */
+/** @var string $view */
+/** @var string $day */
+/** @var string|null $weekStart */
+/** @var string|null $weekEnd */
 /** @var array<int, array<string,mixed>> $appointments */
 
 $prefix = $tenant->urlPrefix();
+
+$view = isset($view) && is_string($view) ? $view : 'month';
+$day = isset($day) && is_string($day) ? $day : date('Y-m-d');
+
+$mk = static function (string $v, array $q = []) use ($prefix): string {
+    $base = $prefix . '/calendars?view=' . rawurlencode($v);
+    foreach ($q as $k => $val) {
+        $base .= '&' . rawurlencode((string)$k) . '=' . rawurlencode((string)$val);
+    }
+    return $base;
+};
+
+$dayTs = strtotime($day);
+$dayTs = $dayTs !== false ? $dayTs : time();
+$prevDay = date('Y-m-d', $dayTs - 86400);
+$nextDay = date('Y-m-d', $dayTs + 86400);
+$prevWeek = date('Y-m-d', $dayTs - 7 * 86400);
+$nextWeek = date('Y-m-d', $dayTs + 7 * 86400);
 
 $firstTs = strtotime(sprintf('%04d-%02d-01', $year, $month));
 $firstTs = $firstTs !== false ? $firstTs : time();
@@ -25,6 +47,12 @@ $monthNames = [
 ];
 $monthName = $monthNames[(int)date('n', $firstTs)] ?? 'mês';
 $monthTitle = $monthName . ' de ' . date('Y', $firstTs);
+
+$title = $view === 'month'
+    ? $monthTitle
+    : ($view === 'day'
+        ? ('Dia ' . date('d/m/Y', $dayTs))
+        : ('Semana de ' . date('d/m', strtotime((string)$weekStart ?: $day)) . ' a ' . date('d/m', strtotime((string)$weekEnd ?: $day))));
 
 $daysInMonth = (int)date('t', $firstTs);
 $firstWeekday = (int)date('w', $firstTs); // 0=dom
@@ -63,16 +91,92 @@ $today = date('Y-m-d');
                 <a class="btn" href="<?php echo htmlspecialchars($prefix . '/calendars'); ?>">Hoje</a>
             </div>
 
-            <div class="calendar-title"><?php echo htmlspecialchars($monthTitle); ?></div>
+            <div class="calendar-title"><?php echo htmlspecialchars($title); ?></div>
 
             <div class="calendar-right">
                 <div class="calendar-view-toggle">
-                    <button type="button" class="btn is-active">Mês</button>
-                    <button type="button" class="btn" disabled>Semana</button>
-                    <button type="button" class="btn" disabled>Dia</button>
+                    <a class="btn<?php echo $view === 'month' ? ' is-active' : ''; ?>" href="<?php echo htmlspecialchars($mk('month', ['y' => $year, 'm' => $month])); ?>">Mês</a>
+                    <a class="btn<?php echo $view === 'week' ? ' is-active' : ''; ?>" href="<?php echo htmlspecialchars($mk('week', ['day' => $day])); ?>">Semana</a>
+                    <a class="btn<?php echo $view === 'day' ? ' is-active' : ''; ?>" href="<?php echo htmlspecialchars($mk('day', ['day' => $day])); ?>">Dia</a>
                 </div>
             </div>
         </div>
+
+        <?php if ($view === 'day'): ?>
+            <div class="calendar-toolbar" style="margin-top:12px;">
+                <div class="calendar-left">
+                    <a class="btn" href="<?php echo htmlspecialchars($mk('day', ['day' => $prevDay])); ?>" aria-label="Anterior">‹</a>
+                    <a class="btn" href="<?php echo htmlspecialchars($mk('day', ['day' => date('Y-m-d')])); ?>">Hoje</a>
+                    <a class="btn" href="<?php echo htmlspecialchars($mk('day', ['day' => $nextDay])); ?>" aria-label="Próximo">›</a>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:12px;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Início</th>
+                            <th>Serviço</th>
+                            <th>Cliente</th>
+                            <th>Profissional</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($appointments as $a): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars(substr((string)$a['starts_at'], 11, 5)); ?></td>
+                                <td><?php echo htmlspecialchars((string)($a['service_name'] ?? '')); ?></td>
+                                <td><?php echo htmlspecialchars((string)($a['client_name'] ?? '')); ?></td>
+                                <td><?php echo htmlspecialchars((string)($a['employee_name'] ?? '')); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+                <?php if ($appointments === []): ?>
+                    <div class="small" style="margin-top:10px;">Nenhum agendamento neste dia.</div>
+                <?php endif; ?>
+            </div>
+
+        <?php elseif ($view === 'week'): ?>
+            <div class="calendar-toolbar" style="margin-top:12px;">
+                <div class="calendar-left">
+                    <a class="btn" href="<?php echo htmlspecialchars($mk('week', ['day' => $prevWeek])); ?>" aria-label="Anterior">‹</a>
+                    <a class="btn" href="<?php echo htmlspecialchars($mk('week', ['day' => date('Y-m-d')])); ?>">Esta semana</a>
+                    <a class="btn" href="<?php echo htmlspecialchars($mk('week', ['day' => $nextWeek])); ?>" aria-label="Próximo">›</a>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:12px;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Dia</th>
+                            <th>Início</th>
+                            <th>Serviço</th>
+                            <th>Cliente</th>
+                            <th>Profissional</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($appointments as $a): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars(date('d/m', strtotime(substr((string)$a['starts_at'], 0, 10)))); ?></td>
+                                <td><?php echo htmlspecialchars(substr((string)$a['starts_at'], 11, 5)); ?></td>
+                                <td><?php echo htmlspecialchars((string)($a['service_name'] ?? '')); ?></td>
+                                <td><?php echo htmlspecialchars((string)($a['client_name'] ?? '')); ?></td>
+                                <td><?php echo htmlspecialchars((string)($a['employee_name'] ?? '')); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+                <?php if ($appointments === []): ?>
+                    <div class="small" style="margin-top:10px;">Nenhum agendamento nesta semana.</div>
+                <?php endif; ?>
+            </div>
+
+        <?php else: ?>
 
         <div class="calendar-grid">
             <div class="calendar-dow">dom.</div>
@@ -118,6 +222,8 @@ $today = date('Y-m-d');
                 </div>
             <?php endfor; ?>
         </div>
+
+        <?php endif; ?>
 
         <div style="margin-top:12px" class="small">
             Dica: para cadastrar agendamentos use <a href="<?php echo htmlspecialchars($prefix . '/agenda'); ?>">Agendamentos</a>.

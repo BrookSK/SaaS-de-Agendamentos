@@ -1,20 +1,23 @@
 <?php
 /** @var \App\Core\ResolvedTenant $tenant */
 /** @var string $tab */
+/** @var \App\Models\Tenant|null $company */
 /** @var string|null $message */
 /** @var string|null $error */
 
 $prefix = $tenant->urlPrefix();
 
+$companyName = $company?->name ?? '';
+$companyEmail = $company?->email ?? '';
+$companyPhone = $company?->phone ?? '';
+$companyCpfCnpj = $company?->cpfCnpj ?? '';
+
 $tabs = [
-    'company' => ['Configurações da Empresa', 'Envie logotipo e banners.'],
-    'general' => ['Configurações Gerais', 'Dados e preferências gerais.'],
-    'appearance' => ['Aparência', 'Tema, cores e fontes.'],
+    'company' => ['Dados da Empresa', 'Atualize os dados cadastrais da empresa.'],
     'business_hours' => ['Horário de Funcionamento', 'Defina horários e turnos.'],
+    'employee_hours' => ['Horário por Profissional', 'Regras específicas por colaborador.'],
     'holidays' => ['Feriados', 'Configure feriados e folgas.'],
-    'embed' => ['Código Incorporado', 'Copie e cole no seu site.'],
-    'qr' => ['Código QR', 'Baixe o QR para divulgação.'],
-    'payments' => ['Configurações de Pagamento', 'Integrações e recebimentos.'],
+    'time_blocks' => ['Bloqueios', 'Bloqueios pontuais na agenda.'],
     'notifications' => ['Notificações', 'Mensagens e automações.'],
 ];
 
@@ -23,6 +26,17 @@ $tabs = [
 $mkUrl = static function (string $t) use ($prefix): string {
     return $prefix . '/settings/company?tab=' . rawurlencode($t);
 };
+
+$tabHrefs = [
+    'company' => $mkUrl('company'),
+    'business_hours' => $prefix . '/settings/business-hours',
+    'employee_hours' => $prefix . '/settings/employee-hours',
+    'holidays' => $prefix . '/settings/holidays',
+    'time_blocks' => $prefix . '/settings/time-blocks',
+    'notifications' => $prefix . '/settings/notifications',
+];
+
+$uriPath = (string)(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/');
 ?>
 <!doctype html>
 <html lang="pt-br">
@@ -52,8 +66,15 @@ $mkUrl = static function (string $t) use ($prefix): string {
             <aside class="tenant-settings-menu">
                 <div class="tenant-settings-menu-title">Configurações da Empresa</div>
                 <?php foreach ($tabs as $key => $meta): ?>
-                    <?php $active = $key === $tab; ?>
-                    <a class="tenant-settings-link<?php echo $active ? ' active' : ''; ?>" href="<?php echo htmlspecialchars($mkUrl($key)); ?>">
+                    <?php $href = $tabHrefs[$key] ?? $mkUrl($key); ?>
+                    <?php
+                        $hrefPath = (string)(parse_url($href, PHP_URL_PATH) ?? $href);
+                        $active = $hrefPath === $uriPath;
+                        if ($key === 'company' && str_starts_with($uriPath, $prefix . '/settings/company')) {
+                            $active = true;
+                        }
+                    ?>
+                    <a class="tenant-settings-link<?php echo $active ? ' active' : ''; ?>" href="<?php echo htmlspecialchars($href); ?>">
                         <?php echo htmlspecialchars($meta[0]); ?>
                     </a>
                 <?php endforeach; ?>
@@ -68,48 +89,27 @@ $mkUrl = static function (string $t) use ($prefix): string {
                         </div>
                     </div>
 
-                    <?php if ($tab === 'company'): ?>
-                        <div class="tenant-upload-grid">
-                            <div class="tenant-upload-box">
-                                <div class="tenant-upload-preview"></div>
-                                <div class="tenant-upload-row">
-                                    <input type="text" value="Enviar Logotipo" disabled>
-                                    <button class="btn" type="button" disabled>Browse</button>
-                                </div>
-                                <div class="small">Para uma melhor visualização, use 300 × 150px</div>
-                                <div class="tenant-radio-row">
-                                    <label><input type="radio" checked> Logotipo pequeno</label>
-                                    <label><input type="radio"> Logotipo médio</label>
-                                    <label><input type="radio"> Logotipo grande</label>
-                                </div>
-                            </div>
-
-                            <div class="tenant-upload-box">
-                                <div class="tenant-upload-preview is-wide"></div>
-                                <div class="tenant-upload-row">
-                                    <input type="text" value="Imagem do Banner" disabled>
-                                    <button class="btn" type="button" disabled>Browse</button>
-                                </div>
-                                <div class="small">Para uma melhor visualização, use 1600 × 1000px</div>
-                            </div>
-
-                            <div class="tenant-upload-box">
-                                <div class="tenant-upload-preview is-wide is-drop">Carregar Sobre a Imagem</div>
-                                <div class="tenant-upload-row">
-                                    <input type="text" value="Carregar Sobre a Imagem" disabled>
-                                    <button class="btn" type="button" disabled>Browse</button>
-                                </div>
-                                <div class="small">Para uma melhor visualização, use 1200px +</div>
-                            </div>
+                    <form method="post" action="<?php echo htmlspecialchars($prefix . '/settings/company'); ?>">
+                        <div>
+                            <label>Nome da empresa</label><br>
+                            <input type="text" name="name" value="<?php echo htmlspecialchars($companyName); ?>" placeholder="<?php echo htmlspecialchars($tenant->slug); ?>" required>
                         </div>
-                    <?php else: ?>
-                        <div class="tenant-settings-placeholder">
-                            <div class="small">Essa seção terá suas regras específicas. Estrutura pronta para implementar.</div>
-                            <div style="margin-top:12px">
-                                <a class="btn" href="<?php echo htmlspecialchars($mkUrl('company')); ?>">Voltar para Configurações da Empresa</a>
-                            </div>
+                        <div>
+                            <label>E-mail</label><br>
+                            <input type="email" name="email" value="<?php echo htmlspecialchars($companyEmail); ?>">
                         </div>
-                    <?php endif; ?>
+                        <div>
+                            <label>Telefone</label><br>
+                            <input type="text" name="phone" value="<?php echo htmlspecialchars($companyPhone); ?>">
+                        </div>
+                        <div>
+                            <label>CPF/CNPJ</label><br>
+                            <input type="text" name="cpf_cnpj" value="<?php echo htmlspecialchars($companyCpfCnpj); ?>">
+                        </div>
+                        <div style="margin-top:12px;">
+                            <button class="btn" type="submit">Salvar</button>
+                        </div>
+                    </form>
                 </div>
             </section>
         </div>
