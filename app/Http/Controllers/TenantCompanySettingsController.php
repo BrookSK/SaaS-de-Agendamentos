@@ -48,10 +48,12 @@ final class TenantCompanySettingsController extends Controller
             'general',
             'appearance',
             'business_hours',
+            'employee_hours',
             'holidays',
             'embed',
             'qr',
             'payments',
+            'time_blocks',
             'notifications',
         ];
         if (!in_array($tab, $allowed, true)) {
